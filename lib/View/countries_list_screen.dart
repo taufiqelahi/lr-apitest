@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lr_api_test/View/details_screen.dart';
 import 'package:lr_api_test/model/countries_state_model.dart';
 import 'package:lr_api_test/services/state_services.dart';
 import 'package:shimmer/shimmer.dart';
@@ -24,10 +25,8 @@ class _CountriesListScreenState extends State<CountriesListScreen> {
           Padding(
             padding: const EdgeInsets.all(18.0),
             child: TextFormField(
-              onChanged: (v){
-                setState(() {
-                  
-                });
+              onChanged: (v) {
+                setState(() {});
               },
               controller: controller,
               decoration: InputDecoration(
@@ -86,8 +85,22 @@ class _CountriesListScreenState extends State<CountriesListScreen> {
                       var data = snapshot.data![index];
                       String name = data.country.toString();
 
-                      if (name.isEmpty) {
+                      if (controller.text.isEmpty) {
                         return ListTile(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (BuildContext context) {
+                              return DetailsScreen(
+                                  image: data.countryInfo!.flag!,
+                                  name: name,
+                                  totalcases: data.todayCases!,
+                                  totalDeaths: data.deaths!,
+                                  totalRecovered: data.todayRecovered!,
+                                  active: data.active!,
+                                  critical: data.critical!,
+                                  test: data.tests!);
+                            }));
+                          },
                           title: Text(data.country ?? 'Unknown Country'),
                           subtitle: Text(
                               "Cases: ${data.cases?.toString() ?? 'Unknown'}"),
@@ -108,6 +121,20 @@ class _CountriesListScreenState extends State<CountriesListScreen> {
                           .toLowerCase()
                           .contains(controller.text.toLowerCase())) {
                         return ListTile(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (BuildContext context) {
+                                  return DetailsScreen(
+                                      image: data.countryInfo!.flag!,
+                                      name: name,
+                                      totalcases: data.todayCases!,
+                                      totalDeaths: data.deaths!,
+                                      totalRecovered: data.todayRecovered!,
+                                      active: data.active!,
+                                      critical: data.critical!,
+                                      test: data.tests!);
+                                }));
+                          },
                           title: Text(data.country ?? 'Unknown Country'),
                           subtitle: Text(
                               "Cases: ${data.cases?.toString() ?? 'Unknown'}"),
