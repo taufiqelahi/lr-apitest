@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:lr_api_test/View/countries_list_screen.dart';
+import 'package:lr_api_test/model/world_state_model.dart';
+import 'package:lr_api_test/services/state_services.dart';
 import 'package:pie_chart/pie_chart.dart';
 
 class WorldStateScreen extends StatefulWidget {
@@ -24,43 +28,72 @@ class _WorldStateScreenState extends State<WorldStateScreen>
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              PieChart(
-                  chartType: ChartType.ring,
-                  chartRadius: MediaQuery.of(context).size.width / 3.2,
-                  legendOptions:
-                      const LegendOptions(legendPosition: LegendPosition.left),
-                  colorList: colorList,
-                  dataMap: {"Total": 20, "Recover": 15, "Death": 5}),
-              const SizedBox(
-                height: 30,
-              ),
-              const Card(
-                child: Column(
-                  children: [
-                    ReusableRow(title: "Total", value: "20"),
-                    ReusableRow(title: "Total", value: "20"),
-                    ReusableRow(title: "Total", value: "20")
-                  ],
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              children: [
+                FutureBuilder(
+                  future: StateServices().getAllData(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<WorldState> snapshot) {
+                    if (!snapshot.hasData) {
+                      return Expanded(
+                          child: SpinKitFadingCircle(
+                        color: Colors.white,
+                        controller: controller,
+                      ));
+                    } else {
+                      final data = snapshot.data;
+                      return Column(
+                        children: [
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          PieChart(
+                              chartType: ChartType.ring,
+                              chartRadius:
+                                  MediaQuery.of(context).size.width / 3.2,
+                              legendOptions: const LegendOptions(
+                                  legendPosition: LegendPosition.left),
+                              colorList: colorList,
+                              chartValuesOptions: ChartValuesOptions(
+                                showChartValuesInPercentage: true
+                              ),
+                              dataMap: {
+                                "Total":
+                            double.tryParse(data!.cases!.toString())!,
+                                "Recover": double.tryParse(data!.recovered!.toString())!,
+                                "Death": double.tryParse(data!.deaths!.toString())!
+                              }),
+                          const SizedBox(
+                            height: 30,
+                          ),
+                           Card(
+                            child: Column(
+                              children: [
+                                ReusableRow(title: "Total", value: data.cases.toString()),
+                                ReusableRow(title: "Recover", value: data.recovered.toString()),
+                                ReusableRow(title: "Death", value: data.deaths.toString())
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xff1aa260),
+                              ),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (_)=>CountriesListScreen()));
+                              },
+                              child: const Text('Track Countries'))
+                        ],
+                      );
+                    }
+                  },
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:     const Color(0xff1aa260),
-
-                ),
-                  onPressed: () {}, child: const Text('Track Countries'))
-            ],
-          ),
-        ),
+              ],
+            )),
       ),
     );
   }
